@@ -1,0 +1,16 @@
+[project]
+name = "agent-with-mcp-adk"
+version = "0.1.0"
+readme = "README.md"
+authors = [
+    { name = "Karn Wong", email = "karn@karnwong.me" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+#agent-with-mcp-adk = "agent_with_mcp_adk:main"
+
+[build-system]
+requires = ["uv_build>=0.8.19,<0.9.0"]
+build-backend = "uv_build"
