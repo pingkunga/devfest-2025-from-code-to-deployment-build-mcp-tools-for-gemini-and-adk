@@ -15,6 +15,8 @@ make start-agent-a
 make start
 ```
 
+Use `https://foo.example.tld/webhook` for LINE webhook url.
+
 ## Prompt
 
 ```bash
