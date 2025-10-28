@@ -3,7 +3,6 @@ test:
 start:
 	uv run main.py
 
-# standalone
 start-agent-a:
 	uv run adk api_server src/agent_a
 submit-agent-a:
