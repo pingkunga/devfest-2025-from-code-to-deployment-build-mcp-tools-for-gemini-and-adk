@@ -14,3 +14,9 @@ LINE_CHANNEL_ACCESS_TOKEN=
 make start-agent-a
 make start
 ```
+
+## Prompt
+
+```bash
+what is current weather in new york city
+```
