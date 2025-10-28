@@ -1,5 +1,8 @@
+import json
 import os
+from uuid import uuid4
 
+import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from linebot.v3 import WebhookHandler
@@ -65,8 +68,10 @@ def handle_text_message(event: MessageEvent):
         # Get the text from the user
         user_message = event.message.text
 
-        # Echo back the message
-        reply_text = f"You said: {user_message}"
+        # ----- get response via a2a -----
+        # reply_text = f"You said: {user_message}"
+        reply_text = call_agent(user_message)
+        # --------------------------------
 
         # Reply to the user
         line_bot_api.reply_message(
@@ -74,3 +79,40 @@ def handle_text_message(event: MessageEvent):
                 reply_token=event.reply_token, messages=[TextMessage(text=reply_text)]
             )
         )
+
+
+# adk
+def call_agent(user_message: str) -> str:
+    agent_name = "agent_a"
+    session_id = str(uuid4())
+
+    base_url = "http://localhost:8000"
+    endpoint = f"/apps/{agent_name}/users/u_123/sessions/{session_id}"
+    url = base_url + endpoint
+
+    try:
+        # init session
+        payload = {"state": {"key1": "value1", "key2": 42}}
+        response_init = requests.post(url, data=json.dumps(payload))
+        print(
+            f"Session initialization successful. Status Code: {response_init.status_code}"
+        )
+
+        # submit prompt
+        agent_payload = {
+            "app_name": agent_name,
+            "user_id": "u_123",
+            "session_id": session_id,
+            "new_message": {"role": "user", "parts": [{"text": user_message}]},
+        }
+        response_submit = requests.post(
+            f"{base_url}/run", data=json.dumps(agent_payload)
+        )
+        print(
+            f"Prompt submission successful. Status Code: {response_submit.status_code}"
+        )
+
+        return response_submit.json()[-1]["content"]["parts"][0]["text"]
+
+    except Exception as e:
+        print(f"Error during session initialization: {e}")
