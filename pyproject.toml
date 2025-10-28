@@ -6,7 +6,21 @@ authors = [
     { name = "Karn Wong", email = "karn@karnwong.me" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "anyio>=4.11.0",
+    "fastapi>=0.120.1",
+    "geopy>=2.4.1",
+    "langchain>=1.0.2",
+    "langchain-google-genai>=3.0.0",
+    "langchain-mcp-adapters>=0.1.11",
+    "langgraph>=1.0.1",
+    "line-bot-sdk>=3.20.0",
+    "mcp>=1.19.0",
+    "motor>=3.7.1",
+    "pymongo>=4.15.3",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.38.0",
+]
 
 [project.scripts]
 #agent-with-mcp-adk = "agent_with_mcp_adk:main"
