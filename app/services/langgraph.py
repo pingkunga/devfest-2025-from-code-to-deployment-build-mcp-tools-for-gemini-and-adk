@@ -7,7 +7,8 @@ from typing import Annotated, List
 
 from bson import ObjectId
 from langchain.chat_models import init_chat_model
-from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages.ai import AIMessage, BaseMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
