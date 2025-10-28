@@ -22,12 +22,12 @@ dependencies = [
     "uvicorn>=0.38.0",
 ]
 
-[project.scripts]
+#[project.scripts]
 #agent-with-mcp-adk = "agent_with_mcp_adk:main"
 
-[build-system]
-requires = ["uv_build>=0.8.19,<0.9.0"]
-build-backend = "uv_build"
+#[build-system]
+#requires = ["uv_build>=0.8.19,<0.9.0"]
+#build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
