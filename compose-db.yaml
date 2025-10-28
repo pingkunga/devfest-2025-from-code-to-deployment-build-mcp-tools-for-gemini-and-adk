@@ -1,0 +1,8 @@
+services:
+  mongo:
+    image: mongo:8.0.15
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devfest
+      MONGO_INITDB_ROOT_PASSWORD: adk
