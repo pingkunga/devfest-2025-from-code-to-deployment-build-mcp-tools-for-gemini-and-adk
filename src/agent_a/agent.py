@@ -1,11 +1,18 @@
 import datetime
+import json
+import os
 from zoneinfo import ZoneInfo
 
+import google.generativeai as genai
+import requests
 from dotenv import load_dotenv
 from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from google.adk.agents import Agent
 
 load_dotenv()
+
+# Configure Gemini API
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 def get_weather(city: str) -> dict:
@@ -17,18 +24,109 @@ def get_weather(city: str) -> dict:
     Returns:
         dict: status and result or error msg.
     """
-    if city.lower() == "new york":
+    try:
+        # Step 1: Use Gemini to get latitude and longitude from city name
+        model = genai.GenerativeModel("gemini-2.0-flash-exp")
+
+        prompt = f"""Given the city name '{city}', provide the latitude and longitude coordinates.
+        Return ONLY a JSON object in this exact format with no additional text:
+        {{"latitude": <number>, "longitude": <number>}}"""
+
+        response = model.generate_content(prompt)
+
+        # Parse the response to extract coordinates
+        coords_text = response.text.strip()
+        # Remove markdown code blocks if present
+        if "```json" in coords_text:
+            coords_text = coords_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in coords_text:
+            coords_text = coords_text.split("```")[1].split("```")[0].strip()
+
+        coords = json.loads(coords_text)
+        latitude = coords["latitude"]
+        longitude = coords["longitude"]
+
+        # Step 2: Call OpenMeteo API with the coordinates
+        openmeteo_url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "current": "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m",
+            "temperature_unit": "celsius",
+            "wind_speed_unit": "kmh",
+        }
+
+        weather_response = requests.get(openmeteo_url, params=params, timeout=10)
+        weather_response.raise_for_status()
+        weather_data = weather_response.json()
+
+        # Step 3: Format the weather report
+        current = weather_data["current"]
+        temp = current["temperature_2m"]
+        feels_like = current["apparent_temperature"]
+        humidity = current["relative_humidity_2m"]
+        wind_speed = current["wind_speed_10m"]
+        precipitation = current["precipitation"]
+
+        # Weather code interpretation (simplified)
+        weather_code = current["weather_code"]
+        weather_descriptions = {
+            0: "Clear sky",
+            1: "Mainly clear",
+            2: "Partly cloudy",
+            3: "Overcast",
+            45: "Foggy",
+            48: "Depositing rime fog",
+            51: "Light drizzle",
+            53: "Moderate drizzle",
+            55: "Dense drizzle",
+            61: "Slight rain",
+            63: "Moderate rain",
+            65: "Heavy rain",
+            71: "Slight snow",
+            73: "Moderate snow",
+            75: "Heavy snow",
+            80: "Slight rain showers",
+            81: "Moderate rain showers",
+            82: "Violent rain showers",
+            95: "Thunderstorm",
+        }
+        weather_desc = weather_descriptions.get(weather_code, "Unknown conditions")
+
+        report = (
+            f"The weather in {city} is {weather_desc.lower()} with a temperature of {temp}°C "
+            f"(feels like {feels_like}°C). Humidity is {humidity}%, wind speed is {wind_speed} km/h"
+        )
+
+        if precipitation > 0:
+            report += f", and there is {precipitation}mm of precipitation"
+
+        report += "."
+
         return {
             "status": "success",
-            "report": (
-                "The weather in New York is sunny with a temperature of 25 degrees"
-                " Celsius (77 degrees Fahrenheit)."
-            ),
+            "report": report,
         }
-    else:
+
+    except json.JSONDecodeError as e:
         return {
             "status": "error",
-            "error_message": f"Weather information for '{city}' is not available.",
+            "error_message": f"Failed to parse coordinates for '{city}': {str(e)}",
+        }
+    except requests.RequestException as e:
+        return {
+            "status": "error",
+            "error_message": f"Failed to fetch weather data for '{city}': {str(e)}",
+        }
+    except KeyError as e:
+        return {
+            "status": "error",
+            "error_message": f"Unexpected response format: missing key {str(e)}",
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error_message": f"An error occurred while fetching weather for '{city}': {str(e)}",
         }
 
 

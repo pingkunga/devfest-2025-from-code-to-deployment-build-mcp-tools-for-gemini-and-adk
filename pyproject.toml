@@ -9,6 +9,7 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.120.1",
     "google-adk[a2a]>=1.17.0",
+    "google-generativeai>=0.8.3",
     "line-bot-sdk>=3.20.0",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
