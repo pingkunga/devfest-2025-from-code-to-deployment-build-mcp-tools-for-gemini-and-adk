@@ -10,12 +10,6 @@ from html2text import html2text
 
 load_dotenv()
 mcp = FastMCP(name="FastMCP-Time_Tool")
-
-# Input schema
-class TimeQueryInput(BaseModel):
-    query: str = Field(
-        description='Specify the time keyword: "today", "now", "yesterday", "tomorrow"'
-    )
     
 # Tool definition
 @mcp.tool
