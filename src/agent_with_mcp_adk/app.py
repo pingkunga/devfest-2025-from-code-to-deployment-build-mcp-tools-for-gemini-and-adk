@@ -67,10 +67,12 @@ def handle_text_message(event: MessageEvent):
 
         # Get the text from the user
         user_message = event.message.text
+        print("user_message : ", user_message)
 
         # ----- get response via a2a -----
         # reply_text = f"You said: {user_message}"
         reply_text = call_agent(user_message)
+        print("reply_text : ", reply_text)
         # --------------------------------
 
         # Reply to the user

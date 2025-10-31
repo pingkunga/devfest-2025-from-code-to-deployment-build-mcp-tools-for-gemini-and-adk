@@ -11,8 +11,9 @@ LINE_CHANNEL_ACCESS_TOKEN=
 ## Usage
 
 ```bash
+make start-wehbook
+make start-mcp-server
 make start-agent-a
-make start
 ```
 
 Use `https://foo.example.tld/webhook` for LINE webhook url.
