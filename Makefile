@@ -1,4 +1,4 @@
-start-wehbook:
+start-webhook:
 	uv run main.py
 start-mcp-server:
 	python src/mcp_server/tools.py
