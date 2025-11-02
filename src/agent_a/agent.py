@@ -168,9 +168,11 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 #     print(f"Result <get_current_time> with {report}")
 #     return {"status": "success", "report": report}
 
+mcp_port = os.getenv("MCP_PORT", "7000")
+mcp_server_url = f"http://localhost:{mcp_port}/sse"
+
 tools = MCPToolset(
-        # connection_params=SseServerParams(url=os.getenv("MCP_SERVER_URL"))
-        connection_params=SseServerParams(url="http://0.0.0.0:7000/sse")
+        connection_params=SseServerParams(url=mcp_server_url)
 )
 # tools = get_tools_async()
 
