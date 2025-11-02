@@ -1,0 +1,48 @@
+Architecture Diagram for MCP Tools Project
+==========================================
+
+LINE User
+    ↓ (sends message)
+LINE Webhook API
+    ↓ (POST /webhook)
+FastAPI App (agent_with_mcp_adk/app.py)
+    ↓ (call_agent function)
+ADK Agent Server (localhost:8000)
+    ↙        ↘
+Uses MCP Tools    Uses Gemini API
+    ↓             ↓
+MCP Server (0.0.0.0:7000/sse)
+    ↓
+Tools: get_time, extract_wikipedia_article
+    ↓
+FastAPI App
+    ↓ (reply message)
+LINE Webhook
+    ↓
+LINE User (receives response)
+
+Testing Components:
+- hurl/01_init_session.hurl: Initialize agent session
+- hurl/02_submit_agent_a.hurl: Submit message to agent
+- scripts/submit-agent-a.sh: Bash script to run tests
+- scripts/explain.py: Parse and explain agent responses
+
+Key Components:
+- main.py: Entry point, runs FastAPI with uvicorn on port 8001
+- src/agent_with_mcp_adk/app.py: Handles LINE webhook, calls ADK agent
+- src/agent_a/agent.py: Defines the agent with MCP toolset and Gemini model
+- src/mcp_server/tools.py: MCP server providing time and Wikipedia extraction tools
+
+Data Flow:
+1. User sends message to LINE bot
+2. LINE sends webhook to FastAPI app
+3. App calls ADK agent server with user message
+4. Agent uses MCP tools and Gemini to process request
+5. Agent returns response to app
+6. App sends reply back to LINE
+7. LINE delivers response to user
+
+Testing Flow:
+1. submit-agent-a.sh initializes session via Hurl
+2. Submits test message to agent
+3. explain.py parses the response to show which tools were used
